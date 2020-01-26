@@ -7,13 +7,6 @@
 #   Blog:  佰阅部落 https://baiyue.one                               #
 #===================================================================#
 #
-#  .______        ___       __  ____    ____  __    __   _______      ______   .__   __.  _______ 
-#  |   _  \      /   \     |  | \   \  /   / |  |  |  | |   ____|    /  __  \  |  \ |  | |   ____|
-#  |  |_)  |    /  ^  \    |  |  \   \/   /  |  |  |  | |  |__      |  |  |  | |   \|  | |  |__   
-#  |   _  <    /  /_\  \   |  |   \_    _/   |  |  |  | |   __|     |  |  |  | |  . `  | |   __|  
-#  |  |_)  |  /  _____  \  |  |     |  |     |  `--'  | |  |____  __|  `--'  | |  |\   | |  |____ 
-#  |______/  /__/     \__\ |__|     |__|      \______/  |_______|(__)\______/  |__| \__| |_______|
-#
 #一键脚本
 #
 #
@@ -109,11 +102,8 @@ notice(){
     yellow "初始化后台菜单"
     docker-compose exec meedu php artisan install backend_menu   
     sleep 6s
-    yellow "生成安装锁"
-    docker-compose exec meedu php artisan install:lock  
     yellow "定时任务"
-    echo "* * * * * docker-compose exec meedu php artisan schedule:run >> /dev/null 2>&1" >> /var/spool/cron/root
-    service crond reload 
+    docker-compose exec meedu crond
     greenbg "正在重启meedu"
     restart_meedu
     sleep 10s
@@ -142,7 +132,7 @@ install_main(){
     blue "获取配置文件"
     mkdir -p /opt/meedu && cd /opt/meedu
     rm -f docker-compose.yml  
-    wget https://raw.githubusercontent.com/Baiyuetribe/meedu/master/docker-compose.yml      
+    wget https://gist.githubusercontent.com/dongcj/8a5713986d0eea4ce130bf20be7b9931/raw/docker-compose.yml     
     blue "配置文件获取成功"
     greenbg "首次启动会拉取镜像，国内速度比较慢，请耐心等待完成"
     docker-compose up -d
@@ -178,16 +168,6 @@ remove_all(){
 #开始菜单
 start_menu(){
     clear
-	echo "
-
-
-  ██████╗  █████╗ ██╗██╗   ██╗██╗   ██╗███████╗    ██████╗ ███╗   ██╗███████╗
-  ██╔══██╗██╔══██╗██║╚██╗ ██╔╝██║   ██║██╔════╝   ██╔═══██╗████╗  ██║██╔════╝
-  ██████╔╝███████║██║ ╚████╔╝ ██║   ██║█████╗     ██║   ██║██╔██╗ ██║█████╗  
-  ██╔══██╗██╔══██║██║  ╚██╔╝  ██║   ██║██╔══╝     ██║   ██║██║╚██╗██║██╔══╝  
-  ██████╔╝██║  ██║██║   ██║   ╚██████╔╝███████╗██╗╚██████╔╝██║ ╚████║███████╗
-  ╚═════╝ ╚═╝  ╚═╝╚═╝   ╚═╝    ╚═════╝ ╚══════╝╚═╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝                                                            
-    "
     greenbg "==============================================================="
     greenbg "简介：MeEdu一键安装脚本                                          "
     greenbg "系统：Centos7、Ubuntu、Debian等                                  "
