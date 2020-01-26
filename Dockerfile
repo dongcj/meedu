@@ -4,7 +4,7 @@ MAINTAINER azure <https://baiyue.one>
 
 FROM php:7.3.6-zts-alpine3.10
 # 本镜像每月自动同步meedu官方源码
-RUN apk update && apk add --no-cache libzip-dev freetype libpng libpng-dev libjpeg-turbo freetype-dev libjpeg-turbo-dev autoconf gcc g++ make git  \
+RUN apk update && apk add --no-cache libzip-dev freetype libpng libpng-dev libjpeg-turbo freetype-dev libjpeg-turbo-dev autoconf gcc g++ make git npm \
     && docker-php-ext-install zip \
     && docker-php-ext-configure gd \
     --with-gd \
@@ -32,11 +32,19 @@ ENV COMPOSER_HOME /var/cache/composer
 RUN mkdir /var/cache/composer 
 WORKDIR /app
 RUN composer create-project qsnh/meedu=dev-master \
-    && sed -i "s/DB_HOST=127.0.0.1/DB_HOST=mysql/g" /app/meedu/.env
-WORKDIR /meedu    
+    && sed -i "s/DB_HOST=127.0.0.1/DB_HOST=meedu-mysql/g" /app/meedu/.env
+WORKDIR /meedu
+RUN git clone https://github.com/Meedu/backend.git meedu-backend \
+    && npm install -g hey-cli \
+    && cd meedu-backend \
+    && hey build \
+    && mkdir -p ../public/admin/ \
+    && mv dist/* ../public/admin/ \
+    && chown -R www-data:root ../public/admin/
+    && cd ..
+    
 COPY entrypoint.sh /usr/local/bin/
 RUN chmod a+x /usr/local/bin/entrypoint.sh
 EXPOSE 80
 ENTRYPOINT ["entrypoint.sh"]
 CMD [ "php", "-S", "0000:80", "-t", "/meedu/public" ]
-
